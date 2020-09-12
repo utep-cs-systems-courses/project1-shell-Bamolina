@@ -22,8 +22,11 @@ def userInputHandler(input):
     if input[0].lower() == "exit":
         return;
     elif input[0].lower() == "cd":
-        if input[1] is not None:
-            os.chdir(input[1])
+        if len(input) > 1:
+            try:
+                os.chdir(input[1])
+            except FileNotFoundError:
+                pass
         else:
             os.chdir("..")
 
