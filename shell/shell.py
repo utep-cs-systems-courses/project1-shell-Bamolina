@@ -5,11 +5,12 @@ import sys, os, re
 
 def main():
     while True:
-
+        path = os.getcwd().encode()
+        os.write(1, path)
         if 'PS1' in os.environ:
             os.write(1, (os.environ['PS1']).encode())
         else:
-            os.write(1, ("$ ").encode())
+            os.write(1, (" $ ").encode())
 
         input = os.read(0,1000)
         input = input.decode().split()
@@ -19,6 +20,8 @@ def main():
         print(input)
 
 def userInputHandler(input):
+    if len(input) == 0:
+        return
     if input[0].lower() == "exit":
         return;
     elif input[0].lower() == "cd":
