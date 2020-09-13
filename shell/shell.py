@@ -12,12 +12,13 @@ def main():
         else:
             os.write(1, (" $ ").encode())
 
-        input = os.read(0, 1000) #arbitrary number
+        input = os.read(0, 1000)  # arbitrary number
         input = input.decode().split()
 
         userInputHandler(input)
 
         print(input)
+
 
 def userInputHandler(input):
     if len(input) == 0:
@@ -32,7 +33,7 @@ def userInputHandler(input):
                 pass
         else:
             os.chdir("..")
-    else: #taken from p3 demo
+    else:  # taken from p3 demo
         pid = os.getpid()
         rc = os.fork()
         if rc < 0:
@@ -46,8 +47,10 @@ def userInputHandler(input):
                 except FileNotFoundError:  # ...expected
                     pass  # ...fail quietly
 
-            os.write(2, ("Child:    Could not exec %s\n" % input[0]).encode())
+            os.write(2, ("Command not found %s\n" % input[0]).encode())
             sys.exit(1)  # terminate with error
+        else:
+            os.wait()  # fixes output string timing
 
 
 if __name__ == "__main__":
