@@ -55,7 +55,6 @@ def pipeHandler(input):
             os.close(fd)
         commandHandler(leftInput)
         sys.exit(1)
-
     else:  # parent (forked ok)
         os.close(0)
         os.dup(pr)
@@ -75,17 +74,35 @@ def commandHandler(input):
         os.write(2, ("fork failed, returning %d\n" % rc).encode())
         sys.exit(1)
     elif rc == 0:
-        for dir in re.split(":", os.environ['PATH']):  # try each directory in the path
-            program = "%s/%s" % (dir, input[0])
-            try:
-                os.execve(program, input, os.environ)  # try to exec program
-            except FileNotFoundError:  # ...expected
-                pass  # ...fail quietly
+        if '>' in input or '<' in input:
+            redirectHandler(input)
+        else:
+            for dir in re.split(":", os.environ['PATH']):  # try each directory in the path
+                program = "%s/%s" % (dir, input[0])
+                try:
+                    os.execve(program, input, os.environ)  # try to exec program
+                except FileNotFoundError:  # ...expected
+                    pass  # ...fail quietly
 
         os.write(2, ("Command not found: %s\n" % input[0]).encode())
         sys.exit(1)  # terminate with error
     else:
         os.wait()  # fixes output string timing
+
+def redirectHandler(input):
+    # taken from p4 demo
+
+    if '>' in input:
+        os.close(1)
+        os.open(input[input.index('>')+1], os.O_CREAT | os.O_WRONLY)
+        os.set_inheritable(1, True)
+        commandHandler(input[0:input.index('>')])
+
+    if '<' in input:
+        os.close(0)
+        os.open(input[input.index('<')+1], os.O_CREAT | os.O_WRONLY)
+        os.set_inheritable(0, True)
+        commandHandler(input[0:input.index('>')])
 
 if __name__ == "__main__":
     main()
