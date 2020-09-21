@@ -17,8 +17,6 @@ def main():
 
         userInputHandler(input)
 
-        print(input)
-
 
 def userInputHandler(input):
     if len(input) == 0:
@@ -66,6 +64,21 @@ def pipeHandler(input):
         commandHandler(rightInput)
         sys.exit(1)
 
+def redirectHandler(input):
+    if '>' in input:
+        os.close(1)
+        os.open(input[input.index('>')+1], os.O_CREAT | os.O_WRONLY)
+        os.set_inheritable(1, True)
+        commandHandler(input[0:input.index('>')])
+        
+
+
+    if '<' in input:
+        os.close(0)
+        os.open(input[input.index('<')+1], os.O_CREAT | os.O_WRONLY)
+        os.set_inheritable(0, True)
+        commandHandler(input[0:input.index('<')])
+
 def commandHandler(input):
     # taken from p3 demo
     pid = os.getpid()
@@ -89,20 +102,7 @@ def commandHandler(input):
     else:
         os.wait()  # fixes output string timing
 
-def redirectHandler(input):
-    # taken from p4 demo
 
-    if '>' in input:
-        os.close(1)
-        os.open(input[input.index('>')+1], os.O_CREAT | os.O_WRONLY)
-        os.set_inheritable(1, True)
-        commandHandler(input[0:input.index('>')])
-
-    if '<' in input:
-        os.close(0)
-        os.open(input[input.index('<')+1], os.O_CREAT | os.O_WRONLY)
-        os.set_inheritable(0, True)
-        commandHandler(input[0:input.index('>')])
 
 if __name__ == "__main__":
     main()
